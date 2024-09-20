@@ -2,6 +2,8 @@ import { spawn } from 'child_process';
 
 export class AgentProcess {
     start(profile, load_memory=false, init_message=null) {
+        console.log('AgentProcess.start called with:', { profile, load_memory, init_message });
+
         let args = ['src/process/init-agent.js', this.name];
         args.push('-p', profile);
         if (load_memory)
@@ -9,11 +11,15 @@ export class AgentProcess {
         if (init_message)
             args.push('-m', init_message);
 
+        console.log('Spawning node process with args:', args);
+
         const agentProcess = spawn('node', args, {
             stdio: 'inherit',
             stderr: 'inherit',
         });
         
+        console.log('Agent process spawned');
+
         let last_restart = Date.now();
         agentProcess.on('exit', (code, signal) => {
             console.log(`Agent process exited with code ${code} and signal ${signal}`);

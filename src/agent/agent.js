@@ -12,27 +12,39 @@ import settings from '../../settings.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null) {
+        console.log('Agent.start called with:', { profile_fp, load_mem, init_message });
+    
         this.prompter = new Prompter(this, profile_fp);
         this.name = this.prompter.getName();
+        console.log('Agent name:', this.name);
+    
         this.history = new History(this);
         this.coder = new Coder(this);
         this.npc = new NPCContoller(this);
         this.memory_bank = new MemoryBank();
         this.self_prompter = new SelfPrompter(this);
-
+    
+        console.log('Initializing examples...');
         await this.prompter.initExamples();
-
+        console.log('Examples initialized');
+    
         console.log('Logging in...');
         this.bot = initBot(this.name);
-
+        console.log('Bot initialized');
+    
         initModes(this);
-
+        console.log('Modes initialized');
+    
         let save_data = null;
         if (load_mem) {
+            console.log('Loading memory...');
             save_data = this.history.load();
+            console.log('Memory loaded:', save_data);
         }
-
+    
+        console.log('Setting up spawn event listener...');
         this.bot.once('spawn', async () => {
+            console.log('Spawn event triggered');
             // wait for a bit so stats are not undefined
             await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -80,6 +92,7 @@ export class Agent {
                 this.bot.chat('Hello world! I am ' + this.name);
                 this.bot.emit('finished_executing');
             }
+            console.log('Agent.start completed');
 
             this.startEvents();
         });
